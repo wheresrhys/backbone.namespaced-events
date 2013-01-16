@@ -2,18 +2,44 @@ $(document).ready(function() {
 
   module("Backbone.NamespacedEvents");
 
-  // test("on and trigger", 2, function() {
-  //   var obj = { counter: 0 };
-  //   _.extend(obj,Backbone.Events);
-  //   obj.on('event', function() { obj.counter += 1; });
-  //   obj.trigger('event');
-  //   equal(obj.counter,1,'counter should be incremented.');
-  //   obj.trigger('event');
-  //   obj.trigger('event');
-  //   obj.trigger('event');
-  //   obj.trigger('event');
-  //   equal(obj.counter, 5, 'counter should be incremented five times.');
-  // });
+  test("on and trigger - using event and namespace", 2, function() {
+    var obj = { counter: 0 };
+    _.extend(obj,Backbone.Events);
+    obj.on('event.namespace', function() { obj.counter += 1; });
+    obj.trigger('event.namespace');
+    equal(obj.counter,1,'counter should be incremented.');
+    obj.trigger('event.namespace');
+    obj.trigger('event.namespace');
+    obj.trigger('event.namespace');
+    obj.trigger('event.namespace');
+    equal(obj.counter, 5, 'counter should be incremented five times.');
+  });
+
+  test("on and trigger - using event only", 2, function() {
+    var obj = { counter: 0 };
+    _.extend(obj,Backbone.Events);
+    obj.on('event.namespace', function() { obj.counter += 1; });
+    obj.trigger('event');
+    equal(obj.counter,1,'counter should be incremented.');
+    obj.trigger('event');
+    obj.trigger('event');
+    obj.trigger('event');
+    obj.trigger('event');
+    equal(obj.counter, 5, 'counter should be incremented five times.');
+  });
+
+  test("on and trigger - multi tier", 3, function() {
+    var obj = { counter: 0 };
+    _.extend(obj,Backbone.Events);
+    obj.on('event.namespace.subnamespace', function() { obj.counter += 1; });
+    obj.trigger('event.namespace.subnamespace');
+    equal(obj.counter,1,'counter should be incremented.');
+    obj.trigger('event.namespace');
+    equal(obj.counter,2,'counter should be incremented.');
+    obj.trigger('event');
+    equal(obj.counter,3,'counter should be incremented.');
+    
+  });
 
   // test("binding and triggering multiple events", 4, function() {
   //   var obj = { counter: 0 };
