@@ -232,14 +232,16 @@
 
         // Overwrites the native Backbone.Events implementation with namespaced events for all future instances of Backbone classes
         overwriteNativeEvents: function () {
-            
-            Backbone.Events = Events;
-            _.extend(Backbone, Events);
-            
-            _.extend(Backbone.Model.prototype, Events);
-            _.extend(Backbone.Collection.prototype, Events);
-            _.extend(Backbone.Router.prototype, Events);
-            _.extend(Backbone.History.prototype, Events);
+            if (!Backbone.NativeEvents) {
+                Backbone.NativeEvents = Backbone.Events;
+                Backbone.Events = Events;
+                _.extend(Backbone, Events);
+                
+                _.extend(Backbone.Model.prototype, Events);
+                _.extend(Backbone.Collection.prototype, Events);
+                _.extend(Backbone.Router.prototype, Events);
+                _.extend(Backbone.History.prototype, Events);
+            }
         }
     };
 
