@@ -71,7 +71,7 @@
 
  var fetchCallbacks = function (events) {
  	if (!events) return [];
- 	var callbacks = events.__callbacks__;
+ 	var callbacks = events.__callbacks__.slice();
 
  	for (var key in events) {
  		if (events.hasOwnProperty(key) && key != '__callbacks__') {
@@ -81,6 +81,31 @@
  	return callbacks;
  }
 
+	var removeCallbacks = function (events, callback, context) {
+		var list, ev, events, j, k;
+          var callbacks = events.__callbacks__,
+              newEvents = [];
+          if (callback || context) {
+            for (j = 0, k = callbacks.length; j < k; j++) {
+              ev = callbacks[j];
+              if ((callback && callback !== ev.callback &&
+                               callback !== ev.callback._callback) ||
+                  (context && context !== ev.context)) {
+                newEvents.push(ev);
+              }
+            }
+          }
+
+
+
+          events.__callbacks__ = newEvents;
+
+          for (var key in events) {
+		 		if (events.hasOwnProperty(key) && key != '__callbacks__') {
+		 			removeCallbacks(events[key]);
+		 		}
+		 	}
+        }
 
 
 
@@ -172,7 +197,7 @@
     // callbacks for the event. If `name` is null, removes all bound
     // callbacks for all events.
     off: function(name, callback, context) {
-      var list, ev, events, names, i, l, j, k;
+      var list, ev, events, newEvents, names, i, l, j, k;
       if (!this._events || !eventsApi(this, 'off', name, [callback, context])) return this;
       if (!name && !callback && !context) {
         this._events = {};
@@ -181,74 +206,31 @@
 
       names = name ? [name] : _.keys(this._events);
       for (i = 0, l = names.length; i < l; i++) {
+  		
         name = names[i];
-        if (list = this._events[name]) {
-          events = [];
-          if (callback || context) {
-            for (j = 0, k = list.length; j < k; j++) {
-              ev = list[j];
-              if ((callback && callback !== ev.callback &&
-                               callback !== ev.callback._callback) ||
-                  (context && context !== ev.context)) {
-                events.push(ev);
-              }
-            }
-          }
-          this._events[name] = events;
-        }
-      }
+        if (name === '__callbacks__') continue;
+
+var eventComponents = name.indexOf(namespaceSplitter) > 0 ? name.split(namespaceSplitter) : [name];
+ 		var event
+ 		list = this._events;
+		while (event = eventComponents.shift()) {
+
+ 			if (!(list = list[event])) {
+				return this;
+ 			}
+ 		}
+
+
+        removeCallbacks(list, callback, context);
+
+   }
 
       return this;
     },
 
 
 
-  //   // Trigger one or many events, firing all bound callbacks. Callbacks are
-  //   // passed the same arguments as `trigger` is, apart from the event name
-  //   // (unless you're listening on `"all"`, which will cause your callback to
-  //   // receive the true name of the event as the first argument).
-  //   trigger: function(events) {
-  //     var event, eventComponents, calls, list, i, length, args, all, rest;
-  //     if (!(calls = this._callbacks)) return this;
 
-  //     rest = [];
-  //     events = events.split(eventSplitter);
-  //     for (i = 1, length = arguments.length; i < length; i++) {
-  //       rest[i - 1] = arguments[i];
-  //     }
-
-  //     // For each event, walk through the list of callbacks twice, first to
-  //     // trigger the event, then to trigger any `"all"` callbacks.
-	 // while (eventComponents = events.shift()) {
-		// eventComponents = eventComponents.indexOf(namespaceSplitter) > 0 ? eventComponents.split(namespaceSplitter) : [eventComponents];
-		// list = calls;
-		// if (all = list.all) all = all.slice();
-		
-		// while (event = eventComponents.shift()) {
-		// 	// Copy callback lists to prevent modification.
-		// 	if (list = list[event]) {
-		// 		list = list.__callbacks__.slice();
-		// 	} else {
-		// 		break;
-		// 	}
-		// }
-		// // Execute event callbacks.
-		// if (list) {
-		// 	for (i = 0, length = list.length; i < length; i += 2) {
-		// 		list[i].apply(list[i + 1] || this, rest);
-		// 	}
-		// }
-
-		// // Execute "all" callbacks.
-		// if (all) {
-		// 	args = [event].concat(rest);
-		// 	for (i = 0, length = all.length; i < length; i += 2) {
-		// 		all[i].apply(all[i + 1] || this, args);
-		// 	}
-		// }
-	 // }
-  //     return this;
-  //   }
 
 
     // Trigger one or many events, firing all bound callbacks. Callbacks are
@@ -274,11 +256,11 @@
 
       	events = fetchCallbacks(events);
 
-
+      	var allEvents = this._events.all && this._events.all.__callbacks__.slice();
 	  if (events) triggerEvents(events, args);
 
 
-      var allEvents = this._events.all;
+      
       if (allEvents) triggerEvents(allEvents, arguments);
       return this;
     },

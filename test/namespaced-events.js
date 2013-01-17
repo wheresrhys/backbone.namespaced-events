@@ -28,7 +28,7 @@ $(document).ready(function() {
     equal(obj.counter, 5, 'counter should be incremented five times.');
   });
 
-  test("on and trigger - multi tier", 3, function() {
+  test("on and trigger - multi tier", 5, function() {
     var obj = { counter: 0 };
     _.extend(obj,Backbone.Events);
     obj.on('event.namespace.subnamespace', function() { obj.counter += 1; });
@@ -38,140 +38,55 @@ $(document).ready(function() {
     equal(obj.counter,2,'counter should be incremented.');
     obj.trigger('event');
     equal(obj.counter,3,'counter should be incremented.');
-    
+    obj.trigger('event.namespace.nosubnamespace');
+    equal(obj.counter,3,'counter should not be incremented.');
+    obj.trigger('event.nonamespace');
+    equal(obj.counter,3,'counter should not be incremented.');
   });
 
-  // test("binding and triggering multiple events", 4, function() {
-  //   var obj = { counter: 0 };
-  //   _.extend(obj, Backbone.Events);
 
-  //   obj.on('a b c', function() { obj.counter += 1; });
 
-  //   obj.trigger('a');
-  //   equal(obj.counter, 1);
 
-  //   obj.trigger('a b');
-  //   equal(obj.counter, 3);
+  test("trigger all for each namespaced event", 1, function() {
+    var a, b, obj = { counter: 0 };
+    _.extend(obj, Backbone.Events);
+    obj.on('all', function(event) {
+      obj.counter++;
+    })
+    .trigger('a.namespace b.namespace');
+    equal(obj.counter, 2);
+  });
 
-  //   obj.trigger('c');
-  //   equal(obj.counter, 4);
+  test("on, then unbind all functions", 7, function() {
+    var obj = { counter: 0 };
+    _.extend(obj,Backbone.Events);
+    var callback = function() { obj.counter += 1; };
+    obj.on('event.namespace1', callback);
+    obj.on('event.namespace2', callback);
+    obj.trigger('event');
+    equal(obj.counter, 2, 'counter should be incremented twice.');
 
-  //   obj.off('a c');
-  //   obj.trigger('a b c');
-  //   equal(obj.counter, 5);
-  // });
+    obj.trigger('event.namespace1');
+    equal(obj.counter, 3, 'counter should be incremented once.');
 
-  // test("binding and triggering with event maps", function() {
-  //   var obj = { counter: 0 };
-  //   _.extend(obj, Backbone.Events);
+    obj.off('event.namespace1');
+    obj.trigger('event');
+    equal(obj.counter, 4, 'counter should be incremented once.');
 
-  //   var increment = function() {
-  //     this.counter += 1;
-  //   };
+    obj.trigger('event.namespace1');
+    equal(obj.counter, 4, 'counter should bot be incremented.');
 
-  //   obj.on({
-  //     a: increment,
-  //     b: increment,
-  //     c: increment
-  //   }, obj);
+    obj.trigger('event.namespace2');
+    equal(obj.counter, 5, 'counter should be incremented once.');
 
-  //   obj.trigger('a');
-  //   equal(obj.counter, 1);
+    obj.off('event');
+    obj.trigger('event');
+    equal(obj.counter, 5, 'counter should bot be incremented.');
 
-  //   obj.trigger('a b');
-  //   equal(obj.counter, 3);
+    obj.trigger('event.namespace2');
+    equal(obj.counter, 5, 'counter should bot be incremented.');
 
-  //   obj.trigger('c');
-  //   equal(obj.counter, 4);
-
-  //   obj.off({
-  //     a: increment,
-  //     c: increment
-  //   }, obj);
-  //   obj.trigger('a b c');
-  //   equal(obj.counter, 5);
-  // });
-
-  // test("listenTo and stopListening", 1, function() {
-  //   var a = _.extend({}, Backbone.Events);
-  //   var b = _.extend({}, Backbone.Events);
-  //   a.listenTo(b, 'all', function(){ ok(true); });
-  //   b.trigger('anything');
-  //   a.listenTo(b, 'all', function(){ ok(false); });
-  //   a.stopListening();
-  //   b.trigger('anything');
-  // });
-
-  // test("listenTo and stopListening with event maps", 4, function() {
-  //   var a = _.extend({}, Backbone.Events);
-  //   var b = _.extend({}, Backbone.Events);
-  //   var cb = function(){ ok(true); };
-  //   a.listenTo(b, {event: cb});
-  //   b.trigger('event');
-  //   a.listenTo(b, {event2: cb});
-  //   b.on('event2', cb);
-  //   a.stopListening(b, {event2: cb});
-  //   b.trigger('event event2');
-  //   a.stopListening();
-  //   b.trigger('event event2');
-  // });
-
-  // test("stopListening with omitted args", 2, function () {
-  //   var a = _.extend({}, Backbone.Events);
-  //   var b = _.extend({}, Backbone.Events);
-  //   var cb = function () { ok(true); };
-  //   a.listenTo(b, 'event', cb);
-  //   b.on('event', cb);
-  //   a.listenTo(b, 'event2', cb);
-  //   a.stopListening(null, {event: cb});
-  //   b.trigger('event event2');
-  // });
-
-  // test("listenTo yourself", 1, function(){
-  //   var e = _.extend({}, Backbone.Events);
-  //   e.listenTo(e, "foo", function(){ ok(true); });
-  //   e.trigger("foo");
-  // });
-
-  // test("listenTo yourself cleans yourself up with stopListening", 1, function(){
-  //   var e = _.extend({}, Backbone.Events);
-  //   e.listenTo(e, "foo", function(){ ok(true); });
-  //   e.trigger("foo");
-  //   e.stopListening();
-  //   e.trigger("foo");
-  // });
-
-  // test("listenTo with empty callback doesn't throw an error", 1, function(){
-  //   var e = _.extend({}, Backbone.Events);
-  //   e.listenTo(e, "foo", null);
-  //   e.trigger("foo");
-  //   ok(true);
-  // });
-
-  // test("trigger all for each event", 3, function() {
-  //   var a, b, obj = { counter: 0 };
-  //   _.extend(obj, Backbone.Events);
-  //   obj.on('all', function(event) {
-  //     obj.counter++;
-  //     if (event == 'a') a = true;
-  //     if (event == 'b') b = true;
-  //   })
-  //   .trigger('a b');
-  //   ok(a);
-  //   ok(b);
-  //   equal(obj.counter, 2);
-  // });
-
-  // test("on, then unbind all functions", 1, function() {
-  //   var obj = { counter: 0 };
-  //   _.extend(obj,Backbone.Events);
-  //   var callback = function() { obj.counter += 1; };
-  //   obj.on('event', callback);
-  //   obj.trigger('event');
-  //   obj.off('event');
-  //   obj.trigger('event');
-  //   equal(obj.counter, 1, 'counter should have only been incremented once.');
-  // });
+  });
 
   // test("bind two callbacks, unbind only one", 2, function() {
   //   var obj = { counterA: 0, counterB: 0 };
