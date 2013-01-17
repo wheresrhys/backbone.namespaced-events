@@ -2,6 +2,8 @@ $(document).ready(function() {
 
   module("Backbone.NamespacedEvents");
 
+  //TODO: write a test for overwriteNativeEvents
+
   test("on and trigger - using event and namespace", 2, function() {
     var obj = { counter: 0 };
     _.extend(obj,Backbone.Events);
