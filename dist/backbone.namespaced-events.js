@@ -1,3 +1,7 @@
+/*! Backbone namespaced events - v0.1.0 - 2013-01-24
+* https://github.com/wheresrhys/backbone.namespaced-events
+* Copyright (c) 2013 Rhys Evans; Licensed MIT */
+
 /**
  * Backbone-namespaced-events.js 0.1
  * (c) 2012 Rhys Evans
@@ -14,14 +18,14 @@
     **/
     var _, Backbone, exports;
     if ( typeof window === 'undefined' ) {
-    	_ = require( 'underscore' );
-    	Backbone = require( 'backbone' );
-    	exports = module.exports = Backbone;
+        _ = require( 'underscore' );
+        Backbone = require( 'backbone' );
+        exports = module.exports = Backbone;
     }
     else {
-    	_ = window._;
-    	Backbone = window.Backbone;
-    	exports = window;
+        _ = window._;
+        Backbone = window.Backbone;
+        exports = window;
     }
 
     // Create a local reference to array methods.
@@ -30,7 +34,7 @@
     var slice = array.slice;
     var splice = array.splice;
 
-	
+    
 
 
     // Implement fancy features of the Events API such as multiple event
@@ -72,23 +76,23 @@
     // Fetch all the callbacks for an event and any namespaced events in the same tree
     // Called recursively to traverse the event tree
     var fetchCallbacks = function (events) {
-     	if (!events) return [];
+        if (!events) return [];
 
-     	var callbacks = events.__callbacks__.slice(),
+        var callbacks = events.__callbacks__.slice(),
             key;
 
-     	for (var key in events) {
-     		if (events.hasOwnProperty(key) && key != '__callbacks__') {
-     			callbacks = callbacks.concat(fetchCallbacks(events[key]));
-     		}
-     	}
-     	return callbacks;
-    }
+        for (key in events) {
+            if (events.hasOwnProperty(key) && key !== '__callbacks__') {
+                callbacks = callbacks.concat(fetchCallbacks(events[key]));
+            }
+        }
+        return callbacks;
+    };
 
     // Remove callbacks for a given event and any namespaced events in the same tree
     // Removes all callbacks unless a callback or context given, in which case called recursively to traverse the event tree
-	var removeCallbacks = function (events, callback, context) {
-        var list, ev, events, j, k,
+    var removeCallbacks = function (events, callback, context) {
+        var list, ev, j, k,
             callbacks = events.__callbacks__,
             newEvents = [];
         
@@ -101,12 +105,11 @@
         }
         events.__callbacks__ = newEvents;
         for (var key in events) {
-            if (events.hasOwnProperty(key) && key != '__callbacks__') {
+            if (events.hasOwnProperty(key) && key !== '__callbacks__') {
                 removeCallbacks(events[key], callback, context);
             }
         }
-
-    }
+    };
 
 
 
@@ -132,16 +135,16 @@
         // to a `callback` function. Passing `"all"` will bind the callback to
         // all events fired.
         on: function(name, callback, context) {
-          	if (!(eventsApi(this, 'on', name, [callback, context]) && callback)) return this;
+            if (!(eventsApi(this, 'on', name, [callback, context]) && callback)) return this;
 
-          	var list = this._events|| (this._events = {}),
+            var list = this._events|| (this._events = {}),
                 eventComponents = name.indexOf(namespaceSplitter) > 0 ? name.split(namespaceSplitter) : [name];
-        	while (name = eventComponents.shift()) {
-        	 	list = list[name] || (list[name] = {__callbacks__: []});
-        	}
+            while (name = eventComponents.shift()) {
+                list = list[name] || (list[name] = {__callbacks__: []});
+            }
 
-          	list.__callbacks__.push({callback: callback, context: context, ctx: context || this});
-          	return this;
+            list.__callbacks__.push({callback: callback, context: context, ctx: context || this});
+            return this;
         },
 
 
@@ -162,7 +165,7 @@
             names = name ? [name] : _.keys(this._events);
             
             for (i = 0, il = names.length; i < il; i++) {
-            	
+                
                 name = names[i];
 
                 if (name === '__callbacks__') continue;
@@ -172,10 +175,10 @@
 
                 while (name = eventComponents.shift()) {
                     listParent = {list: list, name: name};
-            		if (!(list = list[name])) {
+                    if (!(list = list[name])) {
                         return this;
-            		}
-            	}
+                    }
+                }
 
 
                 if (callback || context) {
@@ -249,5 +252,5 @@
     Events.bind   = Events.on;
     Events.unbind = Events.off;
 
-	
+    
 })();

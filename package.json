@@ -1,18 +1,41 @@
 {
-  "name"          : "backbone",
-  "description"   : "Give your JS App some Backbone with Models, Views, Collections, and Events.",
-  "url"           : "http://backbonejs.org",
-  "keywords"      : ["model", "view", "controller", "router", "server", "client", "browser"],
-  "author"        : "Jeremy Ashkenas <jeremy@documentcloud.org>",
+  "name"          : "namespaced-events",
+  "title"         : "Backbone namespaced events",
+  "main"          : "dist/backbone.js",
+  "version"       : "0.1.0",
+  "description"   : "jQuery style, dot-separated namespaced events for backbone",
+  "url"           : "https://github.com/wheresrhys/backbone.namespaced-events",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wheresrhys/backbone.namespaced-events.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wheresrhys/backbone.namespaced-events/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/wheresrhys/backbone.namespaced-events/blob/master/LICENSE-MIT"
+    }
+  ],
+  "keywords"      : ["backbone", "events", "namespacing"],
+  "author": {
+    "name": "Rhys Evans",
+    "email": "wheresrhys@gmail.com",
+    "url": "http://wheresrhys.co.uk"
+  },
   "dependencies"  : {
     "underscore"  : ">=1.4.3"
   },
-  "devDependencies": {
-    "phantomjs": "0.2.2"
+  
+  "engines": {
+    "node": ">= 0.6.0"
   },
   "scripts": {
-    "test": "phantomjs test/vendor/runner.js test/index.html?noglobals=true"
+    "test": "grunt qunit"
   },
-  "main"          : "backbone.js",
-  "version"       : "0.9.10"
+  "devDependencies": {
+    "grunt": "~0.3.17",
+    "phantomjs": "0.2.2"
+  }
 }
