@@ -1,4 +1,5 @@
 # Backbone Namespaced Events
+[![Build Status](https://travis-ci.org/wheresrhys/backbone.namespaced-events.png)](https://travis-ci.org/wheresrhys/backbone.namespaced-events)
 
 
 Backbone Namespaced Events implements the syntax of jQuery namespaced events (http://docs.jquery.com/Namespaced_Events) for Backbone's custom events implementation
